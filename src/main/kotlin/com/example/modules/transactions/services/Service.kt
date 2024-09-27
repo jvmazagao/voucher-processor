@@ -29,7 +29,21 @@ val WalletProc = object : WalletProcessor  {
 }
 
 fun interface MerchantProcessor {
-    fun accepts(merchant: String): Boolean
+    fun accepts(merchant: String, acceptedMCCs: List<String>): Boolean
+}
+
+val MerchantProc = object: MerchantProcessor {
+    val merchants: Map<String, String> = mapOf(
+        Pair("UBER TRIP", "4000"),
+        Pair("UBER EATS", "5812"),
+        Pair("PAG*JoseDaSilva", "4000"),
+        Pair("PICPAY*BILHETEUNICO", "4000"),
+        Pair("SUPERMERCADOS VERDEMAR", "5411")
+    )
+
+    override fun accepts(merchant: String, acceptedMCCs: List<String>): Boolean {
+        return acceptedMCCs.contains(merchants[merchant]);
+    }
 }
 
 fun interface TransactionProcessor {
@@ -40,12 +54,12 @@ fun interface TransactionProcessor {
 val FoodProcessor = object : TransactionProcessor {
     val tag = "FoodProcessor"
     val FOOD_MCC_LIST = listOf("5411", "5412")
-    val MERCHANTS = listOf("GROCERY", "MERCADO")
+
     override fun process(transaction: Transaction, wallet: WalletProcessor,cb: TransactionResponse): TransactionResponse {
-        val foodMerchantProcessor = MerchantProcessor { merchant -> MERCHANTS.contains(merchant.uppercase()) }
+        val foodMerchantProcessor = MerchantProc
 
         try {
-            if (foodMerchantProcessor.accepts(transaction.merchant) or FOOD_MCC_LIST.contains(transaction.mcc)) {
+            if (foodMerchantProcessor.accepts(transaction.merchant.uppercase(), FOOD_MCC_LIST) or FOOD_MCC_LIST.contains(transaction.mcc)) {
                 wallet.debit(transaction.totalAmount, Wallets.FOOD)
                 return TransactionResponse(TransactionStatus.SUCCESS)
             }
@@ -62,11 +76,10 @@ val FoodProcessor = object : TransactionProcessor {
 val MealProcessor = object : TransactionProcessor {
     val tag = "MealProcessor"
     val MEAL_MCC_LIST = listOf("5811", "5812")
-    val MERCHANTS = listOf("RESTAURANT", "EATS", "IFOOD")
     override fun process(transaction: Transaction, wallet: WalletProcessor, cb: TransactionResponse): TransactionResponse {
-        val mealMerchantProcessor = MerchantProcessor { merchant -> MERCHANTS.contains(merchant.uppercase()) }
+        val mealMerchantProcessor = MerchantProc
         try {
-            if (mealMerchantProcessor.accepts(transaction.merchant) or MEAL_MCC_LIST.contains(transaction.mcc)) {
+            if (mealMerchantProcessor.accepts(transaction.merchant, MEAL_MCC_LIST) or MEAL_MCC_LIST.contains(transaction.mcc)) {
                 wallet.debit(transaction.totalAmount, Wallets.MEAL)
                 return TransactionResponse(TransactionStatus.SUCCESS)
             }

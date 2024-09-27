@@ -12,13 +12,13 @@ class ServiceTest {
 
     @Test
     fun voucherExecuteTest() {
-        val foodTransactionMCC = Transaction("1234", 100f, "5412", "UBER")
-        val foodTransactionMerchant = Transaction("1234", 100f, "5411", "Mercado")
-        val foodTransactionMerchantNoBalance = Transaction("1234", 3000f, "5411", "Mercado")
+        val foodTransactionMCC = Transaction("1234", 100f, "5412", "SUPERMERCADOS VERDEMAR")
+        val foodTransactionMerchant = Transaction("1234", 100f, "5411", "UBER EATS")
+        val foodTransactionMerchantNoBalance = Transaction("1234", 3000f, "5411", "SUPERMERCADOS VERDEMAR")
 
-        val mealTransactionMCC = Transaction("1234", 100f, "5811", "UBER")
+        val mealTransactionMCC = Transaction("1234", 100f, "5811", "UBER EATS")
         val mealTransactionMerchant = Transaction("1234", 100f, "5812", "IFOOD")
-        val cashTransaction = Transaction("1234", 100f, "4100", "UBER")
+        val cashTransaction = Transaction("1234", 100f, "4100", "PICPAY*BILHETEUNICO")
         assertEquals(VoucherExecutor.execute(foodTransactionMCC), TransactionResponse(TransactionStatus.SUCCESS))
         assertEquals(VoucherExecutor.execute(foodTransactionMerchant), TransactionResponse(TransactionStatus.SUCCESS))
         assertEquals(VoucherExecutor.execute(foodTransactionMerchantNoBalance), TransactionResponse(TransactionStatus.FAILURE))
